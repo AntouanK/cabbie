@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/AntouanK/cabbie/issues"
   },
-  "homepage": "https://github.com/AntouanK/cabbie"
+  "homepage": "https://github.com/AntouanK/cabbie",
+  "dependencies": {
+    "gulp": "^3.7.0"
+  }
 }
