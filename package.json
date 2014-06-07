@@ -17,6 +17,15 @@
   },
   "homepage": "https://github.com/AntouanK/cabbie",
   "dependencies": {
-    "gulp": "^3.7.0"
+    "eslint": "^0.6.2",
+    "event-stream": "^3.1.5",
+    "gulp": "^3.7.0",
+    "gulp-concat": "^2.2.0",
+    "gulp-eslint": "^0.1.7",
+    "gulp-if": "^1.2.1",
+    "gulp-less": "^1.2.3",
+    "gulp-react": "^0.3.3",
+    "rimraf": "^2.2.8",
+    "run-sequence": "^0.3.6"
   }
 }
