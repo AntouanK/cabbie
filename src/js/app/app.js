@@ -1,8 +1,7 @@
 /** @jsx React.DOM */
 (function() {
 
-  cabbie.nav = {
-
+  cabbie.nav = { 
     options: {
       home: {
         text: 'home'
@@ -10,16 +9,28 @@
       tryRoute: {
         text: 'Try route',
         action: function(){
-        
-          
+          cabbie.slider.open();
         }
+      },
+      redraw: {
+        text: 'Replay route',
+        action: function(){
+          cabbie.map.replay();
+        },
+        isDisabled: true
       }
     }
   };
 
+  cabbie.nav.setOption = function(id, bool){
+  
+    cabbie.nav.options[id].isDisabled = bool;
+    cabbie.renderAll();
+  };
+
   var App = React.createClass({
   getInitialState: function() {
-    return {map: 'off', slider: 'on'};
+    return { map: 'off' };
   },
   render: function() {
 
@@ -32,15 +43,19 @@
       <div className="pure-g-r content id-layout">
         <Nav options={cabbie.nav.options} />
         <Map state={this.state.map} />
-        <Slider state={this.state.slider} />
+        <Slider state='on' />
       </div>
     );
   }
 });
 
-  window.onload = function(){
+cabbie.renderAll = function(){
+  cabbie.App = React.renderComponent(<App />, document.body);
+};
 
-    React.renderComponent(<App />, document.body);
-  };
+window.onload = function(){
+  cabbie.renderAll();
+};
+
 
 }());

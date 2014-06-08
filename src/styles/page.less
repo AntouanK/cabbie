@@ -3,6 +3,16 @@
 
 @yellow: #ffd24d;
 
+//  pure css grid
+.pure-g > div {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.l-box {
+    padding: 1em;
+}
+
 .text-center {
   text-align: center;
 }
@@ -50,6 +60,13 @@
     display: none;
   }
 
+  .icon-minimize {
+    display: none;
+  }
+  .icon-maximize {
+    display: initial;
+  }
+
   &.on {
     top: 37px;
     min-height: 100%;
@@ -62,10 +79,11 @@
       display: none;
     }
 
-    .icon-open {
-      -webkit-transform: rotate(180deg);
-      -moz-transform: rotate(180deg);
-      transform: rotate(180deg);
+    .icon-maximize {
+      display: none;
+    }
+    .icon-minimize {
+      display: initial;
     }
   }
 

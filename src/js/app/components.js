@@ -6,14 +6,38 @@
 cabbie.components = {};
 
 cabbie.components.Nav = React.createClass({
+  getInitialState: function() {
+    return {
+      options: this.props.options
+    };
+  },
+  options: function(options){
+  
+    var thisEle = this;
+
+    thisEle.setState({
+      options: options
+    });
+  },
+  setOption: function(id, bool){
+  
+    this.state.options[id].isDisabled = bool;
+  },
   render: function(){
 
-    var options = this.props.options;
+    var options = this.state.options;
     var optionsToRender = [];
     Object.keys(options)
     .forEach(function(key){
+
+      var liClass = options[key].isDisabled ? 'pure-menu-disabled' : '';
       optionsToRender.push(
-        <li><a href="#">{options[key].text}</a></li>
+        <li className={liClass}>
+          <a href="#" 
+            onClick={options[key].action}>
+          {options[key].text}
+          </a>
+        </li>
       );
     });
 
@@ -24,6 +48,62 @@ cabbie.components.Nav = React.createClass({
         <ul>
             {optionsToRender}
         </ul>
+      </div>
+    );
+  }
+});
+
+
+cabbie.components.Counter = React.createClass({
+  getInitialState: function(){
+    return {
+      value: this.props.value
+    };
+  },
+  oneUp: function(){
+
+    if(this.state.value === 30){
+      return;
+    }
+
+    var newValue = this.state.value += 1;
+
+    this.setState({
+      value: newValue
+    });
+
+    this.getDOMNode().setAttribute('value', newValue);
+  },
+  oneDown: function(){
+  
+    if(this.state.value === 0){
+      return;
+    }
+
+    var newValue = this.state.value -= 1;
+
+    this.setState({
+      value: newValue
+    });
+
+    this.getDOMNode().setAttribute('value', newValue);
+  },
+  render: function(){
+  
+    var thisEle = this,
+        value = this.state.value;
+
+    return (
+      <div className="pure-g counter" value={value}>
+        <div className="pure-u-1-4 text-center">
+          <span className="icon-minus" onClick={thisEle.oneDown}></span>
+        </div>
+        <div className="pure-u-1-2 text-center">
+          <span className="counter-value">{value}</span>
+        </div>
+        <div className="pure-u-1-4 text-center">
+          <span className="icon-plus" onClick={thisEle.oneUp}></span>
+        </div>
       </div>
     );
   }
@@ -41,24 +121,30 @@ cabbie.components.JsonInput = React.createClass({
   },
   render: function(){
 
-    var thisEle = this;
-    var value = this.state.value;
+    var thisEle = this,
+        value = this.state.value,
+        speedValue = 10,  //  default speed
+        Counter = cabbie.components.Counter;
+    
     var onSubmitJson = function(e){
 
       var json;
 
       try {
         json = JSON.parse(thisEle.state.value);
+        var el = thisEle.getDOMNode();
+        speedValue = +el.getElementsByClassName('counter')[0].attributes['value'].value;
 
         console.log(json);
         if(typeof thisEle.props.callback === 'function'){
-          thisEle.props.callback(json);
+          thisEle.props.callback(json, speedValue);
         }
 
         //  setting state back to empty
         thisEle.setState({ value: '' });
         e.preventDefault();
       } catch (e) {
+        throw Error(e);
         return false;
       }
     };
@@ -90,8 +176,28 @@ cabbie.components.JsonInput = React.createClass({
                 value={value} />
               </div>
               <div className="pure-u-1-4">
-                <button className="pure-button pure-button-primary">check route</button>
-                <a className="pure-button" href="#" onClick={tryFake}>try sample data</a>
+                <div className="pure-g">
+                  <div className="pure-u-1-1">
+                    <div className="l-box">
+                      <button className="pure-button expand pure-button-primary">check route</button>
+                    </div>
+                  </div>
+                </div>
+                <div className="pure-g">
+                  <div className="pure-u-1-1">
+                    <div className="l-box">
+                      <button className="pure-button expand" href="#" onClick={tryFake}>try sample data</button>
+                    </div>
+                  </div>
+                </div>
+                <div className="pure-g">
+                  <div className="pure-u-1-1">
+                    <div className="l-box">
+                      <strong>how slow?</strong>
+                      <Counter value={speedValue} />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </fieldset>
@@ -108,26 +214,41 @@ cabbie.components.Slider = React.createClass({
       state: this.props.state
     };
   },
+  open: function(){
+  
+    this.setState({
+      state: 'on'
+    });
+  },
+  close: function(){
+  
+    this.setState({
+      state: 'off'
+    });
+  },
+  makeRoute: function(data, speed){
+
+    debugger;
+    cabbie.map.tryRoute(data, speed);
+    this.close();
+    console.log('making route with speed', speed);
+  },
   render: function() {
     var thisEle = this;
-    var sliderClass = 'slider pure-g ' + this.state.state;
+    var sliderClass = 'slider pure-g ' + thisEle.state.state;
     var JsonInput = cabbie.components.JsonInput;
-    var makeRoute = function(data){
-
-      cabbie.map.tryRoute(data);
-      thisEle.setState({state: 'off'});
-    };
 
     console.log('rendering with class', sliderClass);
 
     return (
       <div className={sliderClass}>
         <div className="pure-u-1-12 text-center">
-          <span className="icon-open"></span>
+          <span className="icon-maximize" onClick={thisEle.open}></span>
+          <span className="icon-minimize" onClick={thisEle.close}></span>
         </div>
         <div className="pure-u-11-12">
           <div className="whenOn">
-            <JsonInput callback={makeRoute}/>
+            <JsonInput callback={thisEle.makeRoute}/>
           </div>
           <div className="whenOff">
             info here
