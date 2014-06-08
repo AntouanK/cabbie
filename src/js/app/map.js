@@ -114,7 +114,7 @@ var groupsOf = function(divider){
 
 var filterErrors = function(array1, array2, errorMargin){
 
-  console.log('filterErrors');
+  console.log('filterErrors with margin', errorMargin);
   if(array1.length !== array2.length){
     throw Error('arrays mismatch');
   }
@@ -123,7 +123,7 @@ var filterErrors = function(array1, array2, errorMargin){
 
   array1.forEach(function(p, i){
   
-    if(p/array2[i] > 5){
+    if(p/array2[i] > errorMargin){
       errors.push(i);
     }
   });
@@ -131,7 +131,7 @@ var filterErrors = function(array1, array2, errorMargin){
   return errors;
 };
 
-var calcRouteDistances = function(routePoints){
+var calcRouteDistances = function(routePoints, errorMargin){
 
   var deferred = Q.defer(),
       //  make a copy of the route points, shifted by one, to have the destinations
@@ -139,6 +139,8 @@ var calcRouteDistances = function(routePoints){
       groupsBy = 1,
       groups,
       i;
+
+  errorMargin = errorMargin || 3; //  set a fallback errorMargin value
 
   //  remove last point ( it's only in destinations )
   //  so now we have the origins
@@ -174,7 +176,7 @@ var calcRouteDistances = function(routePoints){
       return (+destinations[i].timestamp) - (+routePoints[i].timestamp);
     });
 
-    deferred.resolve(filterErrors(googleDurations, ourDurations, 6));
+    deferred.resolve(filterErrors(googleDurations, ourDurations, errorMargin));
   });
 
   return deferred.promise;
@@ -226,7 +228,7 @@ function initialize() {
 cabbie.map = {
   ele: {},
   markers: [],
-  tryRoute: function(routePoints, speed){
+  tryRoute: function(routePoints, speed, errorMargin){
   
     if(!isInitialized){
       initialize();
@@ -237,7 +239,7 @@ cabbie.map = {
     speed = speed || 20;
     var filteredPoints = [];
 
-    calcRouteDistances(routePoints)
+    calcRouteDistances(routePoints, errorMargin)
     .then(function(errors){
 
       routePoints
