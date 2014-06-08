@@ -451,6 +451,11 @@
 .expand {
   width: 100%;
 }
+.header {
+  font-weight: 100;
+  line-height: 1.5;
+  color: #666;
+}
 .home-menu.pure-menu.pure-menu-horizontal {
   background-color: #ffd24d;
   z-index: 100;
@@ -465,6 +470,24 @@
   top: 0;
   left: 0;
   position: fixed !important;
+}
+#map-container .loadingContent {
+  -webkit-transition: opacity 0.3s linear;
+  -moz-transition: opacity 0.3s linear;
+  -o-transition: opacity 0.3s linear;
+  transition: opacity 0.3s linear;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  height: 100%;
+  width: 100%;
+}
+#map-container.loading #map-canvas {
+  opacity: 0;
+}
+#map-container.loading .loadingContent {
+  opacity: 1;
 }
 #map-canvas {
   height: 100%;
