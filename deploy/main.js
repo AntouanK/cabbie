@@ -208,7 +208,8 @@ cabbie.components.JsonInput = React.createClass({
 
     var thisEle = this,
         value = this.state.value,
-        speedValue = 20,  //  default speed
+        speedValue = 20,      //  default speed
+        errorMarginValue = 3, //  default error margin value
         Counter = cabbie.components.Counter;
     
     var onSubmitJson = function(e){
@@ -224,10 +225,11 @@ cabbie.components.JsonInput = React.createClass({
         json = JSON.parse(thisEle.state.value);
         var el = thisEle.getDOMNode();
         speedValue = +el.getElementsByClassName('counter')[0].attributes['value'].value;
+        errorMarginValue = +el.getElementsByClassName('counter')[1].attributes['value'].value;
 
         console.log(json);
         if(typeof thisEle.props.callback === 'function'){
-          thisEle.props.callback(json, speedValue);
+          thisEle.props.callback(json, speedValue, errorMarginValue);
         }
 
         //  setting state back to empty
@@ -288,6 +290,14 @@ cabbie.components.JsonInput = React.createClass({
                     </div>
                   </div>
                 </div>
+                <div className="pure-g">
+                  <div className="pure-u-1-1">
+                    <div className="l-box text-center">
+                      <strong>Error margin</strong>
+                      <Counter value={errorMarginValue} />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </fieldset>
@@ -306,11 +316,11 @@ cabbie.components.Slider = React.createClass({
   
     cabbie.App.setState({isSliderOn: false});
   },
-  makeRoute: function(data, speed){
+  makeRoute: function(data, speed, errorMargin){
 
-    cabbie.map.tryRoute(data, speed);
+    cabbie.map.tryRoute(data, speed, errorMargin);
     this.close();
-    console.log('making route with speed', speed);
+    console.log('making route with speed', speed, 'and error margin', errorMargin);
   },
   render: function() {
 
@@ -1632,7 +1642,7 @@ var groupsOf = function(divider){
 
 var filterErrors = function(array1, array2, errorMargin){
 
-  console.log('filterErrors');
+  console.log('filterErrors with margin', errorMargin);
   if(array1.length !== array2.length){
     throw Error('arrays mismatch');
   }
@@ -1641,7 +1651,7 @@ var filterErrors = function(array1, array2, errorMargin){
 
   array1.forEach(function(p, i){
   
-    if(p/array2[i] > 5){
+    if(p/array2[i] > errorMargin){
       errors.push(i);
     }
   });
@@ -1649,7 +1659,7 @@ var filterErrors = function(array1, array2, errorMargin){
   return errors;
 };
 
-var calcRouteDistances = function(routePoints){
+var calcRouteDistances = function(routePoints, errorMargin){
 
   var deferred = Q.defer(),
       //  make a copy of the route points, shifted by one, to have the destinations
@@ -1657,6 +1667,8 @@ var calcRouteDistances = function(routePoints){
       groupsBy = 1,
       groups,
       i;
+
+  errorMargin = errorMargin || 3; //  set a fallback errorMargin value
 
   //  remove last point ( it's only in destinations )
   //  so now we have the origins
@@ -1692,7 +1704,7 @@ var calcRouteDistances = function(routePoints){
       return (+destinations[i].timestamp) - (+routePoints[i].timestamp);
     });
 
-    deferred.resolve(filterErrors(googleDurations, ourDurations, 6));
+    deferred.resolve(filterErrors(googleDurations, ourDurations, errorMargin));
   });
 
   return deferred.promise;
@@ -1744,7 +1756,7 @@ function initialize() {
 cabbie.map = {
   ele: {},
   markers: [],
-  tryRoute: function(routePoints, speed){
+  tryRoute: function(routePoints, speed, errorMargin){
   
     if(!isInitialized){
       initialize();
@@ -1755,7 +1767,7 @@ cabbie.map = {
     speed = speed || 20;
     var filteredPoints = [];
 
-    calcRouteDistances(routePoints)
+    calcRouteDistances(routePoints, errorMargin)
     .then(function(errors){
 
       routePoints
