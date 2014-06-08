@@ -44,12 +44,11 @@
   position: fixed !important;
 
   .loadingContent {
-    .transition-properties(opacity 0.3s linear);
 
     position: absolute;
     top: 0;
     left: 0;
-    opacity: 0;
+    display: none;
     height: 100%;
     width: 100%;
   }
@@ -60,7 +59,7 @@
     }
 
     .loadingContent {
-      opacity: 1
+      display: initial;
     }
   }
 }
