@@ -62,7 +62,7 @@ cabbie.components.Counter = React.createClass({
   },
   oneUp: function(){
 
-    if(this.state.value === 30){
+    if(this.state.value === 29){
       return;
     }
 
@@ -123,12 +123,17 @@ cabbie.components.JsonInput = React.createClass({
 
     var thisEle = this,
         value = this.state.value,
-        speedValue = 10,  //  default speed
+        speedValue = 20,  //  default speed
         Counter = cabbie.components.Counter;
     
     var onSubmitJson = function(e){
 
+      e.preventDefault();
       var json;
+
+      if(thisEle.state.value === ''){
+        return;
+      }
 
       try {
         json = JSON.parse(thisEle.state.value);
@@ -192,8 +197,8 @@ cabbie.components.JsonInput = React.createClass({
                 </div>
                 <div className="pure-g">
                   <div className="pure-u-1-1">
-                    <div className="l-box">
-                      <strong>how slow?</strong>
+                    <div className="l-box text-center">
+                      <strong>Speed</strong>
                       <Counter value={speedValue} />
                     </div>
                   </div>
@@ -208,23 +213,13 @@ cabbie.components.JsonInput = React.createClass({
 });
 
 cabbie.components.Slider = React.createClass({
-  getInitialState: function(){
-    // set the initial state from the properties
-    return {
-      state: this.props.state
-    };
-  },
   open: function(){
   
-    this.setState({
-      state: 'on'
-    });
+    cabbie.App.setState({isSliderOn: true});
   },
   close: function(){
   
-    this.setState({
-      state: 'off'
-    });
+    cabbie.App.setState({isSliderOn: false});
   },
   makeRoute: function(data, speed){
 
@@ -233,8 +228,9 @@ cabbie.components.Slider = React.createClass({
     console.log('making route with speed', speed);
   },
   render: function() {
+
     var thisEle = this;
-    var sliderClass = 'slider pure-g ' + thisEle.state.state;
+    var sliderClass = 'slider pure-g ' + (thisEle.props.state ? 'on' : 'off');
     var JsonInput = cabbie.components.JsonInput;
 
     console.log('rendering with class', sliderClass);
@@ -250,7 +246,7 @@ cabbie.components.Slider = React.createClass({
             <JsonInput callback={thisEle.makeRoute}/>
           </div>
           <div className="whenOff">
-            info here
+            Try another route...
           </div>
         </div>
       </div>
@@ -278,7 +274,8 @@ cabbie.components.Map = React.createClass({
           <div id="map-canvas"></div>
           <div className="loadingContent">
             <div className="header text-center">
-              <h2>Calculating distances between points. Filtering out errors</h2>
+              <h2>Calculating distances between points</h2>
+              <h2>Filtering out errors</h2>
             </div>
           </div>
         </div>

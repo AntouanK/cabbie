@@ -63,7 +63,7 @@ var calcDistance = function(origins, destinations, deferred){
         calcDistance(nextArg.origins, nextArg.destinations, nextArg.deferred);
       }
 
-    }, 60);
+    }, 45);
   }
 
   var originsNorm = [],
@@ -204,7 +204,7 @@ var drawRoute = function(routePoints, delayScale){
         //  turn 'replay' option on
         cabbie.nav.setOption('redraw', true);
       }
-    }, delay*delayScale);
+    }, delay*(30-delayScale));
   });
 
 };
@@ -216,7 +216,7 @@ function initialize() {
   DistanceMatrixService = new google.maps.DistanceMatrixService();
   var mapOptions = {
     center: new google.maps.LatLng(51.530585551433, -0.12274012419932),
-    zoom: 15
+    zoom: 14
   };
   cabbie.map.ele = 
   new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
@@ -234,7 +234,7 @@ cabbie.map = {
 
     cabbie.App.setState({ loading: true });
 
-    speed = speed || 10;
+    speed = speed || 20;
     var filteredPoints = [];
 
     calcRouteDistances(routePoints)
