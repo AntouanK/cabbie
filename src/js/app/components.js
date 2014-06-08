@@ -228,7 +228,6 @@ cabbie.components.Slider = React.createClass({
   },
   makeRoute: function(data, speed){
 
-    debugger;
     cabbie.map.tryRoute(data, speed);
     this.close();
     console.log('making route with speed', speed);
@@ -261,12 +260,28 @@ cabbie.components.Slider = React.createClass({
 
 cabbie.components.Map = React.createClass({
   getInitialState: function() {
-    return {};
+    return {
+      loading: this.props.loading
+    };
   },
   render: function() {
+
+    var classString = this.props.loading ? 'loading' : '';
+
     return (
-      <div id="map-container">
-        <div id="map-canvas"></div>
+      <div id="map-container" className={classString}>
+        <div style={{ 
+            position: 'relative',
+            height: '100%',
+            width: '100%'
+          }}>
+          <div id="map-canvas"></div>
+          <div className="loadingContent">
+            <div className="header text-center">
+              <h2>Calculating distances between points. Filtering out errors</h2>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

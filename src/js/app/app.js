@@ -30,7 +30,17 @@
 
   var App = React.createClass({
   getInitialState: function() {
-    return { map: 'off' };
+    return {
+      map: 'off',
+      loading: 'none'
+    };
+  },
+  showLoading: function(bool){
+  
+    this.setState({
+      loading: bool
+    });
+
   },
   render: function() {
 
@@ -42,7 +52,7 @@
     return (
       <div className="pure-g-r content id-layout">
         <Nav options={cabbie.nav.options} />
-        <Map state={this.state.map} />
+        <Map state={this.state.map} loading={this.state.loading} />
         <Slider state='on' />
       </div>
     );
