@@ -3,13 +3,18 @@
 
   cabbie.nav = { 
     options: {
-      home: {
-        text: 'home'
+      code: {
+        text: 'code',
+        action: function(){
+          //  go to github source code
+          location.href = "https://github.com/AntouanK/cabbie";
+        }
       },
       tryRoute: {
         text: 'Try route',
         action: function(){
-          cabbie.slider.open();
+          //  open slider
+          cabbie.App.setState({isSliderOn: true});
         }
       },
       redraw: {
@@ -32,7 +37,8 @@
   getInitialState: function() {
     return {
       map: 'off',
-      loading: 'none'
+      loading: 'none',
+      isSliderOn: true
     };
   },
   showLoading: function(bool){
@@ -42,6 +48,12 @@
     });
 
   },
+  showSlider: function(bool){
+  
+    this.setState({
+      isSliderOn: bool
+    });
+  },
   render: function() {
 
     var Nav = cabbie.components.Nav;
@@ -49,11 +61,13 @@
     var Slider = cabbie.components.Slider;
     var JsonInput = cabbie.components.JsonInput;
 
+    console.log(this.state);
+
     return (
       <div className="pure-g-r content id-layout">
         <Nav options={cabbie.nav.options} />
         <Map state={this.state.map} loading={this.state.loading} />
-        <Slider state='on' />
+        <Slider state={this.state.isSliderOn} />
       </div>
     );
   }
@@ -133,7 +147,7 @@ cabbie.components.Counter = React.createClass({
   },
   oneUp: function(){
 
-    if(this.state.value === 30){
+    if(this.state.value === 29){
       return;
     }
 
@@ -194,12 +208,17 @@ cabbie.components.JsonInput = React.createClass({
 
     var thisEle = this,
         value = this.state.value,
-        speedValue = 10,  //  default speed
+        speedValue = 20,  //  default speed
         Counter = cabbie.components.Counter;
     
     var onSubmitJson = function(e){
 
+      e.preventDefault();
       var json;
+
+      if(thisEle.state.value === ''){
+        return;
+      }
 
       try {
         json = JSON.parse(thisEle.state.value);
@@ -263,8 +282,8 @@ cabbie.components.JsonInput = React.createClass({
                 </div>
                 <div className="pure-g">
                   <div className="pure-u-1-1">
-                    <div className="l-box">
-                      <strong>how slow?</strong>
+                    <div className="l-box text-center">
+                      <strong>Speed</strong>
                       <Counter value={speedValue} />
                     </div>
                   </div>
@@ -279,23 +298,13 @@ cabbie.components.JsonInput = React.createClass({
 });
 
 cabbie.components.Slider = React.createClass({
-  getInitialState: function(){
-    // set the initial state from the properties
-    return {
-      state: this.props.state
-    };
-  },
   open: function(){
   
-    this.setState({
-      state: 'on'
-    });
+    cabbie.App.setState({isSliderOn: true});
   },
   close: function(){
   
-    this.setState({
-      state: 'off'
-    });
+    cabbie.App.setState({isSliderOn: false});
   },
   makeRoute: function(data, speed){
 
@@ -304,8 +313,9 @@ cabbie.components.Slider = React.createClass({
     console.log('making route with speed', speed);
   },
   render: function() {
+
     var thisEle = this;
-    var sliderClass = 'slider pure-g ' + thisEle.state.state;
+    var sliderClass = 'slider pure-g ' + (thisEle.props.state ? 'on' : 'off');
     var JsonInput = cabbie.components.JsonInput;
 
     console.log('rendering with class', sliderClass);
@@ -321,7 +331,7 @@ cabbie.components.Slider = React.createClass({
             <JsonInput callback={thisEle.makeRoute}/>
           </div>
           <div className="whenOff">
-            info here
+            Try another route...
           </div>
         </div>
       </div>
@@ -349,7 +359,8 @@ cabbie.components.Map = React.createClass({
           <div id="map-canvas"></div>
           <div className="loadingContent">
             <div className="header text-center">
-              <h2>Calculating distances between points. Filtering out errors</h2>
+              <h2>Calculating distances between points</h2>
+              <h2>Filtering out errors</h2>
             </div>
           </div>
         </div>
@@ -1570,7 +1581,7 @@ var calcDistance = function(origins, destinations, deferred){
         calcDistance(nextArg.origins, nextArg.destinations, nextArg.deferred);
       }
 
-    }, 60);
+    }, 45);
   }
 
   var originsNorm = [],
@@ -1711,7 +1722,7 @@ var drawRoute = function(routePoints, delayScale){
         //  turn 'replay' option on
         cabbie.nav.setOption('redraw', true);
       }
-    }, delay*delayScale);
+    }, delay*(30-delayScale));
   });
 
 };
@@ -1723,7 +1734,7 @@ function initialize() {
   DistanceMatrixService = new google.maps.DistanceMatrixService();
   var mapOptions = {
     center: new google.maps.LatLng(51.530585551433, -0.12274012419932),
-    zoom: 15
+    zoom: 14
   };
   cabbie.map.ele = 
   new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
@@ -1741,7 +1752,7 @@ cabbie.map = {
 
     cabbie.App.setState({ loading: true });
 
-    speed = speed || 10;
+    speed = speed || 20;
     var filteredPoints = [];
 
     calcRouteDistances(routePoints)

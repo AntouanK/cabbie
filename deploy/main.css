@@ -472,14 +472,10 @@
   position: fixed !important;
 }
 #map-container .loadingContent {
-  -webkit-transition: opacity 0.3s linear;
-  -moz-transition: opacity 0.3s linear;
-  -o-transition: opacity 0.3s linear;
-  transition: opacity 0.3s linear;
   position: absolute;
   top: 0;
   left: 0;
-  opacity: 0;
+  display: none;
   height: 100%;
   width: 100%;
 }
@@ -487,7 +483,7 @@
   opacity: 0;
 }
 #map-container.loading .loadingContent {
-  opacity: 1;
+  display: initial;
 }
 #map-canvas {
   height: 100%;
