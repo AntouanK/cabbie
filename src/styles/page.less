@@ -21,6 +21,12 @@
   width: 100%;
 }
 
+.header {
+  font-weight: 100;
+  line-height: 1.5;
+  color: #666;
+}
+
 .home-menu.pure-menu.pure-menu-horizontal {
   background-color: @yellow;
   z-index: 100;
@@ -36,6 +42,27 @@
   top: 0;
   left: 0;
   position: fixed !important;
+
+  .loadingContent {
+    .transition-properties(opacity 0.3s linear);
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    height: 100%;
+    width: 100%;
+  }
+
+  &.loading {
+    #map-canvas {
+      opacity: 0;
+    }
+
+    .loadingContent {
+      opacity: 1
+    }
+  }
 }
 
 #map-canvas {

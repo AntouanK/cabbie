@@ -63,7 +63,7 @@ var calcDistance = function(origins, destinations, deferred){
         calcDistance(nextArg.origins, nextArg.destinations, nextArg.deferred);
       }
 
-    }, 40);
+    }, 60);
   }
 
   var originsNorm = [],
@@ -90,7 +90,7 @@ var calcDistance = function(origins, destinations, deferred){
   
     // console.log('status', status);
     if(status !== 'OK'){
-      console.log('no OK, retrying');
+      console.log('no OK, retrying', origins[0].timestamp);
       calcDistance(origins, destinations, deferred);
     } else {
       deferred.resolve(res);
@@ -112,17 +112,38 @@ var groupsOf = function(divider){
   };
 };
 
+var filterErrors = function(array1, array2, errorMargin){
+
+  console.log('filterErrors');
+  if(array1.length !== array2.length){
+    throw Error('arrays mismatch');
+  }
+
+  var errors = [];
+
+  array1.forEach(function(p, i){
+  
+    if(p/array2[i] > 5){
+      errors.push(i);
+    }
+  });
+
+  return errors;
+};
+
 var calcRouteDistances = function(routePoints){
 
   var deferred = Q.defer(),
+      //  make a copy of the route points, shifted by one, to have the destinations
       destinations = routePoints.slice(1),
-      errors = [],
       groupsBy = 1,
       groups,
       i;
 
   //  remove last point ( it's only in destinations )
+  //  so now we have the origins
   routePoints.pop();
+
   groups = groupsOf(groupsBy)(routePoints.length);
   console.log(routePoints.length, groups);
 
@@ -140,27 +161,20 @@ var calcRouteDistances = function(routePoints){
     ) );
   }
 
+  //  when all results are done...
   Q.all(resultPromises)
   .then(function(googleResults){
 
-    googleResults.forEach(function(res, i){
-    
-      var resData = res.rows[0].elements[0];
-      var delay = (+destinations[i].timestamp) - (+routePoints[i].timestamp);
+    console.log('all resolved');
 
-      console.log(resData.distance.value,
-      '\t should be \t',
-      resData.duration.value,
-      '\t we did \t',
-      delay,
-      (resData.duration.value/delay).toFixed(2) );
-
-      if((resData.duration.value/delay).toFixed(2) > 5){
-        errors.push(i);
-      }
+    var googleDurations = googleResults.map(function(res){
+      return +res.rows[0].elements[0].duration.value;
+    });
+    var ourDurations = destinations.map(function(pointInTime, i){
+      return (+destinations[i].timestamp) - (+routePoints[i].timestamp);
     });
 
-    deferred.resolve(errors);
+    deferred.resolve(filterErrors(googleDurations, ourDurations, 6));
   });
 
   return deferred.promise;
@@ -218,6 +232,8 @@ cabbie.map = {
       initialize();
     }
 
+    cabbie.App.setState({ loading: true });
+
     speed = speed || 10;
     var filteredPoints = [];
 
@@ -240,6 +256,8 @@ cabbie.map = {
         routePoints: filteredPoints
       };
 
+      cabbie.App.setState({ loading: false });
+
       setTimeout(function(){
 
         drawRoute(filteredPoints, speed);
@@ -254,7 +272,6 @@ cabbie.map = {
     drawRoute(cabbie.map.lastRoute.routePoints, speed);
   }
 };
-
 
 }());
 
