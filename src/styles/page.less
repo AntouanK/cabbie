@@ -3,6 +3,14 @@
 
 @yellow: #ffd24d;
 
+.text-center {
+  text-align: center;
+}
+
+.expand {
+  width: 100%;
+}
+
 .home-menu.pure-menu.pure-menu-horizontal {
   background-color: @yellow;
   z-index: 100;
@@ -27,9 +35,10 @@
 
 .slider {
 
-  .transition-properties(top .25s linear);
+  .transition-properties(top .25s linear, -webkit-transform 0.25s linear);
 
   position: absolute;
+  padding: 30px;
   width: 100%;
   z-index: 10;
   background: #fafafa;
@@ -37,9 +46,27 @@
   top: 87%;
   min-height: 12%;
 
+  .whenOn {
+    display: none;
+  }
+
   &.on {
     top: 37px;
     min-height: 100%;
+
+    .whenOn {
+      display: initial;
+    }
+
+    .whenOff {
+      display: none;
+    }
+
+    .icon-open {
+      -webkit-transform: rotate(180deg);
+      -moz-transform: rotate(180deg);
+      transform: rotate(180deg);
+    }
   }
 
 }

@@ -8,7 +8,9 @@
     "globals": {
         "console": true,
         "alert": true,
-        "google": true
+        "google": true,
+        "React": true,
+        "cabbie": true
     },
 
     "__instrutions": "(1 is warn, 2 is error)",

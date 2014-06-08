@@ -5,7 +5,6 @@
 
 cabbie.components = {};
 
-
 cabbie.components.Nav = React.createClass({
   render: function(){
 
@@ -64,14 +63,40 @@ cabbie.components.JsonInput = React.createClass({
       }
     };
 
+    // fill in the textarea with fake sample data
+    var tryFake = function(e){
+
+      thisEle.setState({
+        value: JSON.stringify(window._sample_points)
+      });
+      e.preventDefault();
+    };
+
     return (
-      <form onSubmit={onSubmitJson}>
-        <textarea name="textarea"
-          placeholder="Write your json here"
-          onChange={this.handleChange}
-          value={value} />
-        <button>check route</button>
-      </form>
+      <div className="pure-g">
+        <form onSubmit={onSubmitJson} className="pure-form pure-u-11-12">
+          <fieldset>
+            <legend>Give your route details in JSON format</legend>
+
+            <div className="pure-g">
+              <div className="pure-u-3-4">
+              <textarea name="textarea"
+                rows="20"
+                style={{
+                  width: '100%'
+                }}
+                placeholder="Write your json here"
+                onChange={this.handleChange}
+                value={value} />
+              </div>
+              <div className="pure-u-1-4">
+                <button className="pure-button pure-button-primary">check route</button>
+                <a className="pure-button" href="#" onClick={tryFake}>try sample data</a>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </div>
     );
   }
 });
@@ -85,7 +110,7 @@ cabbie.components.Slider = React.createClass({
   },
   render: function() {
     var thisEle = this;
-    var sliderClass = 'slider ' + this.state.state;
+    var sliderClass = 'slider pure-g ' + this.state.state;
     var JsonInput = cabbie.components.JsonInput;
     var makeRoute = function(data){
 
@@ -97,7 +122,17 @@ cabbie.components.Slider = React.createClass({
 
     return (
       <div className={sliderClass}>
-        <JsonInput callback={makeRoute}/>
+        <div className="pure-u-1-12 text-center">
+          <span className="icon-open"></span>
+        </div>
+        <div className="pure-u-11-12">
+          <div className="whenOn">
+            <JsonInput callback={makeRoute}/>
+          </div>
+          <div className="whenOff">
+            info here
+          </div>
+        </div>
       </div>
     );
   }

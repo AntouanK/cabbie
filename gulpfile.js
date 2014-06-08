@@ -87,7 +87,19 @@ gulp.task('deploy-js', function(taskDone){
 gulp.task('deploy-html', function(taskDone){
 
   gulp.src( path.join(getPath('src'), 'index.html') )
-  .pipe( gulp.dest(paths.deploy) )
+  .pipe( gulp.dest(getPath('deploy')) )
+  .on('end',function(){
+    taskDone();
+  });
+});
+
+
+//--------------------------------------------------------- deploy-font
+//  handle the font files
+gulp.task('deploy-font', function(taskDone){
+
+  gulp.src( path.join(getPath('src'), 'fonts') + '/*' )
+  .pipe( gulp.dest(path.join(getPath('deploy'), 'fonts')) )
   .on('end',function(){
     taskDone();
   });
@@ -99,7 +111,7 @@ gulp.task('deploy-css', function(){
 
   gulp.src( path.join(getPath('stylesDir'), '*.less') )
   .pipe( less() )
-  .pipe( gulp.dest(paths.deploy) );
+  .pipe( gulp.dest(getPath('deploy')) );
 });
 
 //--------------------------------------------------------- dev
@@ -109,7 +121,7 @@ gulp.task('dev', function(taskDone){
 
   runSequence(
     'clean-deploy-dir',
-    ['deploy-js', 'deploy-html', 'deploy-css'],
+    ['deploy-js', 'deploy-html', 'deploy-css', 'deploy-font'],
     taskDone
   );
 });
@@ -121,13 +133,13 @@ gulp.task('release', function(taskDone){
 
   runSequence(
     'clean-deploy-dir',
-    ['deploy-js', 'deploy-html', 'deploy-css'],
+    ['deploy-js', 'deploy-html', 'deploy-css', 'deploy-font'],
     taskDone
   );
 });
 
 
-gulp.task('watch', function(){
+gulp.task('watch', ['dev'], function(){
 
   ENV = 'dev';
 
