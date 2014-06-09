@@ -10,6 +10,8 @@
 
 //  store here the google distance service
 var DistanceMatrixService;
+var DEFAULT_ERROR_MARGIN = 3;
+var DEFAULT_SPEED_VALUE = 20;
 
 //  make a google maps point
 var point = function(lat, lng){
@@ -147,6 +149,9 @@ var filterErrors = function(array1, array2, errorMargin){
   return errors;
 };
 
+//  calculate route points distances, and filter out the 'errors'
+//  with the margin given
+//  returns a promise
 var calcRouteDistances = function(routePoints, errorMargin){
 
   var deferred = Q.defer(),
@@ -156,7 +161,7 @@ var calcRouteDistances = function(routePoints, errorMargin){
       groups,
       i;
 
-  errorMargin = errorMargin || 3; //  set a fallback errorMargin value
+  errorMargin = errorMargin || DEFAULT_ERROR_MARGIN; //  set a fallback errorMargin value
 
   //  remove last point ( it's only in destinations )
   //  so now we have the origins
@@ -198,6 +203,7 @@ var calcRouteDistances = function(routePoints, errorMargin){
   return deferred.promise;
 };
 
+//  draw a route on the map
 var drawRoute = function(routePoints, delayScale){
 
   //  turn 'replay' option off
@@ -256,7 +262,7 @@ cabbie.map = {
     cabbie.App.setState({ loading: true });
 
     //  set a default fallback speed value
-    speed = speed || 20;
+    speed = speed || DEFAULT_SPEED_VALUE;
     var filteredPoints = [];
 
     calcRouteDistances(routePoints, errorMargin)
@@ -292,7 +298,7 @@ cabbie.map = {
 
     console.log('replaying...');
     clearMarkers();
-    speed = speed || 12;
+    speed = speed || DEFAULT_SPEED_VALUE;
     drawRoute(cabbie.map.lastRoute.routePoints, speed);
   }
 };
