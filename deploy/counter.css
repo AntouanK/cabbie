@@ -1,7 +1,0 @@
-.counter > div > span {
-  user-select: none;
-  -webkit-user-select: none;
-}
-.counter .counter-value {
-  font-size: large;
-}

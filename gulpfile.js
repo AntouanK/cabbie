@@ -109,7 +109,7 @@ gulp.task('deploy-font', function(taskDone){
 //  handle the css files
 gulp.task('deploy-css', function(){
 
-  gulp.src( path.join(getPath('stylesDir'), '*.less') )
+  gulp.src( path.join(getPath('stylesDir'), 'main.less') )
   .pipe( less() )
   .pipe( gulp.dest(getPath('deploy')) );
 });

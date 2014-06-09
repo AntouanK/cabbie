@@ -1,6 +1,10 @@
 /** @jsx React.DOM */
 (function() {
 
+  //  our top Nav bar options
+  //  'text' has the text to display
+  //  'action' is the callback on click
+  //  'isDisabled' boolean to enable/disable this option
   cabbie.nav = { 
     options: {
       code: {
@@ -27,12 +31,14 @@
     }
   };
 
+  //  enable/disable an option
   cabbie.nav.setOption = function(id, bool){
   
     cabbie.nav.options[id].isDisabled = bool;
     cabbie.renderAll();
   };
 
+  //  our main App top level component
   var App = React.createClass({
   getInitialState: function() {
     return {
@@ -46,7 +52,6 @@
     this.setState({
       loading: bool
     });
-
   },
   showSlider: function(bool){
   
@@ -61,10 +66,10 @@
     var Slider = cabbie.components.Slider;
     var JsonInput = cabbie.components.JsonInput;
 
-    console.log(this.state);
 
+    //  our basic HTML structure of the app
     return (
-      <div className="pure-g-r content id-layout">
+      <div className="pure-g-r">
         <Nav options={cabbie.nav.options} />
         <Map state={this.state.map} loading={this.state.loading} />
         <Slider state={this.state.isSliderOn} />
@@ -73,6 +78,7 @@
   }
 });
 
+//  force render on top level
 cabbie.renderAll = function(){
   cabbie.App = React.renderComponent(<App />, document.body);
 };
@@ -88,8 +94,14 @@ window.onload = function(){
 
 'use strict';
 
+var DEFAULT_ERROR_MARGIN = 3;
+var DEFAULT_SPEED_VALUE = 20;
+
+//  register our React components
 cabbie.components = {};
 
+//  the top nav bar
+//  TODO : no coupling
 cabbie.components.Nav = React.createClass({
   getInitialState: function() {
     return {
@@ -103,10 +115,6 @@ cabbie.components.Nav = React.createClass({
     thisEle.setState({
       options: options
     });
-  },
-  setOption: function(id, bool){
-  
-    this.state.options[id].isDisabled = bool;
   },
   render: function(){
 
@@ -126,8 +134,6 @@ cabbie.components.Nav = React.createClass({
       );
     });
 
-    console.log(options);
-
     return (
       <div className="home-menu pure-menu pure-menu-open pure-menu-horizontal pure-menu-fixed">
         <ul>
@@ -139,6 +145,8 @@ cabbie.components.Nav = React.createClass({
 });
 
 
+//  a simple counter component,  - 1 +
+//  value attr in top element is updated with the real one
 cabbie.components.Counter = React.createClass({
   getInitialState: function(){
     return {
@@ -208,8 +216,8 @@ cabbie.components.JsonInput = React.createClass({
 
     var thisEle = this,
         value = this.state.value,
-        speedValue = 20,      //  default speed
-        errorMarginValue = 3, //  default error margin value
+        speedValue = DEFAULT_SPEED_VALUE,        //  default speed
+        errorMarginValue = DEFAULT_ERROR_MARGIN, //  default error margin value
         Counter = cabbie.components.Counter;
     
     var onSubmitJson = function(e){
@@ -1530,7 +1538,16 @@ window._sample_points = [
 
 'use strict';
 
+//
+//  our 'map' business logic
+//  functions to handle the route and 
+//  filtering out any potential 'error' points
+//
+
+//  store here the google distance service
 var DistanceMatrixService;
+var DEFAULT_ERROR_MARGIN = 3;
+var DEFAULT_SPEED_VALUE = 20;
 
 //  make a google maps point
 var point = function(lat, lng){
@@ -1553,6 +1570,7 @@ var getMarker = function(coords, title){
   }));
 };
 
+//  clear all the markers from the map
 var clearMarkers = function(){
 
   cabbie.map.markers.forEach(function(marker){
@@ -1565,7 +1583,9 @@ var clearMarkers = function(){
   cabbie.map.markers.length = 0;
 };
 
-  //  MAKE BATCH
+
+//  calculate the distance between the two arrays
+//  get back a promise
 var calcDistance = function(origins, destinations, deferred){
 
   deferred = deferred || Q.defer();
@@ -1618,6 +1638,7 @@ var calcDistance = function(origins, destinations, deferred){
   
     // console.log('status', status);
     if(status !== 'OK'){
+      //  if for any reason call was unsuccesfull, retry
       console.log('no OK, retrying', origins[0].timestamp);
       calcDistance(origins, destinations, deferred);
     } else {
@@ -1640,9 +1661,14 @@ var groupsOf = function(divider){
   };
 };
 
+//  filter out any error points by calculating the ratio
+//  between the google maps estimated driving time, and the given one.
+//  if the given is much smaller than the estimated one ( the ratio is limited
+//  by the errorMargin argument ) then it either means that the cab was an airplane, 
+//  or that point is an error
 var filterErrors = function(array1, array2, errorMargin){
 
-  console.log('filterErrors with margin', errorMargin);
+  // console.log('filterErrors with margin', errorMargin);
   if(array1.length !== array2.length){
     throw Error('arrays mismatch');
   }
@@ -1659,6 +1685,9 @@ var filterErrors = function(array1, array2, errorMargin){
   return errors;
 };
 
+//  calculate route points distances, and filter out the 'errors'
+//  with the margin given
+//  returns a promise
 var calcRouteDistances = function(routePoints, errorMargin){
 
   var deferred = Q.defer(),
@@ -1668,7 +1697,7 @@ var calcRouteDistances = function(routePoints, errorMargin){
       groups,
       i;
 
-  errorMargin = errorMargin || 3; //  set a fallback errorMargin value
+  errorMargin = errorMargin || DEFAULT_ERROR_MARGIN; //  set a fallback errorMargin value
 
   //  remove last point ( it's only in destinations )
   //  so now we have the origins
@@ -1710,6 +1739,7 @@ var calcRouteDistances = function(routePoints, errorMargin){
   return deferred.promise;
 };
 
+//  draw a route on the map
 var drawRoute = function(routePoints, delayScale){
 
   //  turn 'replay' option off
@@ -1751,10 +1781,12 @@ function initialize() {
   cabbie.map.ele = 
   new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
 }
-//google.maps.event.addDomListener(window, 'load', initialize);
 
+
+//////////////////////////////////////////////////////
+//  main map API
 cabbie.map = {
-  ele: {},
+  ele: {},  //  store here the main map element
   markers: [],
   tryRoute: function(routePoints, speed, errorMargin){
   
@@ -1762,9 +1794,11 @@ cabbie.map = {
       initialize();
     }
 
+    //  set App to 'loading' state
     cabbie.App.setState({ loading: true });
 
-    speed = speed || 20;
+    //  set a default fallback speed value
+    speed = speed || DEFAULT_SPEED_VALUE;
     var filteredPoints = [];
 
     calcRouteDistances(routePoints, errorMargin)
@@ -1786,19 +1820,21 @@ cabbie.map = {
         routePoints: filteredPoints
       };
 
+      //  loading is done
       cabbie.App.setState({ loading: false });
 
       setTimeout(function(){
-
+        //  start drawing
         drawRoute(filteredPoints, speed);
       }, 250);
     });
   },
+  //  ability to replay the last route ( cached filtered result )
   replay: function(speed){
 
     console.log('replaying...');
     clearMarkers();
-    speed = speed || 12;
+    speed = speed || DEFAULT_SPEED_VALUE;
     drawRoute(cabbie.map.lastRoute.routePoints, speed);
   }
 };
