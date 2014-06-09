@@ -47,6 +47,7 @@ When the route animation is over, you can replay it by clicking the `Replay rout
 
 This web-app is a result of:
 - [React.js](http://facebook.github.io/react/index.html)
+- [Q](https://github.com/kriskowal/q)
 - [PureCSS](http://purecss.io/)
 - [gulp.js](http://gulpjs.com/)
 

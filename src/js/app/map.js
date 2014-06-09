@@ -2,7 +2,16 @@
 
 'use strict';
 
+//
+//  our 'map' business logic
+//  functions to handle the route and 
+//  filtering out any potential 'error' points
+//
+
+//  store here the google distance service
 var DistanceMatrixService;
+var DEFAULT_ERROR_MARGIN = 3;
+var DEFAULT_SPEED_VALUE = 20;
 
 //  make a google maps point
 var point = function(lat, lng){
@@ -25,6 +34,7 @@ var getMarker = function(coords, title){
   }));
 };
 
+//  clear all the markers from the map
 var clearMarkers = function(){
 
   cabbie.map.markers.forEach(function(marker){
@@ -37,7 +47,9 @@ var clearMarkers = function(){
   cabbie.map.markers.length = 0;
 };
 
-  //  MAKE BATCH
+
+//  calculate the distance between the two arrays
+//  get back a promise
 var calcDistance = function(origins, destinations, deferred){
 
   deferred = deferred || Q.defer();
@@ -90,6 +102,7 @@ var calcDistance = function(origins, destinations, deferred){
   
     // console.log('status', status);
     if(status !== 'OK'){
+      //  if for any reason call was unsuccesfull, retry
       console.log('no OK, retrying', origins[0].timestamp);
       calcDistance(origins, destinations, deferred);
     } else {
@@ -112,9 +125,14 @@ var groupsOf = function(divider){
   };
 };
 
+//  filter out any error points by calculating the ratio
+//  between the google maps estimated driving time, and the given one.
+//  if the given is much smaller than the estimated one ( the ratio is limited
+//  by the errorMargin argument ) then it either means that the cab was an airplane, 
+//  or that point is an error
 var filterErrors = function(array1, array2, errorMargin){
 
-  console.log('filterErrors with margin', errorMargin);
+  // console.log('filterErrors with margin', errorMargin);
   if(array1.length !== array2.length){
     throw Error('arrays mismatch');
   }
@@ -131,6 +149,9 @@ var filterErrors = function(array1, array2, errorMargin){
   return errors;
 };
 
+//  calculate route points distances, and filter out the 'errors'
+//  with the margin given
+//  returns a promise
 var calcRouteDistances = function(routePoints, errorMargin){
 
   var deferred = Q.defer(),
@@ -140,7 +161,7 @@ var calcRouteDistances = function(routePoints, errorMargin){
       groups,
       i;
 
-  errorMargin = errorMargin || 3; //  set a fallback errorMargin value
+  errorMargin = errorMargin || DEFAULT_ERROR_MARGIN; //  set a fallback errorMargin value
 
   //  remove last point ( it's only in destinations )
   //  so now we have the origins
@@ -182,6 +203,7 @@ var calcRouteDistances = function(routePoints, errorMargin){
   return deferred.promise;
 };
 
+//  draw a route on the map
 var drawRoute = function(routePoints, delayScale){
 
   //  turn 'replay' option off
@@ -223,10 +245,12 @@ function initialize() {
   cabbie.map.ele = 
   new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
 }
-//google.maps.event.addDomListener(window, 'load', initialize);
 
+
+//////////////////////////////////////////////////////
+//  main map API
 cabbie.map = {
-  ele: {},
+  ele: {},  //  store here the main map element
   markers: [],
   tryRoute: function(routePoints, speed, errorMargin){
   
@@ -234,9 +258,11 @@ cabbie.map = {
       initialize();
     }
 
+    //  set App to 'loading' state
     cabbie.App.setState({ loading: true });
 
-    speed = speed || 20;
+    //  set a default fallback speed value
+    speed = speed || DEFAULT_SPEED_VALUE;
     var filteredPoints = [];
 
     calcRouteDistances(routePoints, errorMargin)
@@ -258,19 +284,21 @@ cabbie.map = {
         routePoints: filteredPoints
       };
 
+      //  loading is done
       cabbie.App.setState({ loading: false });
 
       setTimeout(function(){
-
+        //  start drawing
         drawRoute(filteredPoints, speed);
       }, 250);
     });
   },
+  //  ability to replay the last route ( cached filtered result )
   replay: function(speed){
 
     console.log('replaying...');
     clearMarkers();
-    speed = speed || 12;
+    speed = speed || DEFAULT_SPEED_VALUE;
     drawRoute(cabbie.map.lastRoute.routePoints, speed);
   }
 };

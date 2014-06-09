@@ -3,8 +3,14 @@
 
 'use strict';
 
+var DEFAULT_ERROR_MARGIN = 3;
+var DEFAULT_SPEED_VALUE = 20;
+
+//  register our React components
 cabbie.components = {};
 
+//  the top nav bar
+//  TODO : no coupling
 cabbie.components.Nav = React.createClass({
   getInitialState: function() {
     return {
@@ -18,10 +24,6 @@ cabbie.components.Nav = React.createClass({
     thisEle.setState({
       options: options
     });
-  },
-  setOption: function(id, bool){
-  
-    this.state.options[id].isDisabled = bool;
   },
   render: function(){
 
@@ -41,8 +43,6 @@ cabbie.components.Nav = React.createClass({
       );
     });
 
-    console.log(options);
-
     return (
       <div className="home-menu pure-menu pure-menu-open pure-menu-horizontal pure-menu-fixed">
         <ul>
@@ -54,6 +54,8 @@ cabbie.components.Nav = React.createClass({
 });
 
 
+//  a simple counter component,  - 1 +
+//  value attr in top element is updated with the real one
 cabbie.components.Counter = React.createClass({
   getInitialState: function(){
     return {
@@ -123,8 +125,8 @@ cabbie.components.JsonInput = React.createClass({
 
     var thisEle = this,
         value = this.state.value,
-        speedValue = 20,      //  default speed
-        errorMarginValue = 3, //  default error margin value
+        speedValue = DEFAULT_SPEED_VALUE,        //  default speed
+        errorMarginValue = DEFAULT_ERROR_MARGIN, //  default error margin value
         Counter = cabbie.components.Counter;
     
     var onSubmitJson = function(e){
