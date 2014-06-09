@@ -2,6 +2,13 @@
 
 'use strict';
 
+//
+//  our 'map' business logic
+//  functions to handle the route and 
+//  filtering out any potential 'error' points
+//
+
+//  store here the google distance service
 var DistanceMatrixService;
 
 //  make a google maps point
@@ -25,6 +32,7 @@ var getMarker = function(coords, title){
   }));
 };
 
+//  clear all the markers from the map
 var clearMarkers = function(){
 
   cabbie.map.markers.forEach(function(marker){
@@ -37,7 +45,9 @@ var clearMarkers = function(){
   cabbie.map.markers.length = 0;
 };
 
-  //  MAKE BATCH
+
+//  calculate the distance between the two arrays
+//  get back a promise
 var calcDistance = function(origins, destinations, deferred){
 
   deferred = deferred || Q.defer();
@@ -90,6 +100,7 @@ var calcDistance = function(origins, destinations, deferred){
   
     // console.log('status', status);
     if(status !== 'OK'){
+      //  if for any reason call was unsuccesfull, retry
       console.log('no OK, retrying', origins[0].timestamp);
       calcDistance(origins, destinations, deferred);
     } else {
@@ -112,9 +123,14 @@ var groupsOf = function(divider){
   };
 };
 
+//  filter out any error points by calculating the ratio
+//  between the google maps estimated driving time, and the given one.
+//  if the given is much smaller than the estimated one ( the ratio is limited
+//  by the errorMargin argument ) then it either means that the cab was an airplane, 
+//  or that point is an error
 var filterErrors = function(array1, array2, errorMargin){
 
-  console.log('filterErrors with margin', errorMargin);
+  // console.log('filterErrors with margin', errorMargin);
   if(array1.length !== array2.length){
     throw Error('arrays mismatch');
   }
@@ -223,10 +239,12 @@ function initialize() {
   cabbie.map.ele = 
   new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
 }
-//google.maps.event.addDomListener(window, 'load', initialize);
 
+
+//////////////////////////////////////////////////////
+//  main map API
 cabbie.map = {
-  ele: {},
+  ele: {},  //  store here the main map element
   markers: [],
   tryRoute: function(routePoints, speed, errorMargin){
   
@@ -234,8 +252,10 @@ cabbie.map = {
       initialize();
     }
 
+    //  set App to 'loading' state
     cabbie.App.setState({ loading: true });
 
+    //  set a default fallback speed value
     speed = speed || 20;
     var filteredPoints = [];
 
@@ -258,14 +278,16 @@ cabbie.map = {
         routePoints: filteredPoints
       };
 
+      //  loading is done
       cabbie.App.setState({ loading: false });
 
       setTimeout(function(){
-
+        //  start drawing
         drawRoute(filteredPoints, speed);
       }, 250);
     });
   },
+  //  ability to replay the last route ( cached filtered result )
   replay: function(speed){
 
     console.log('replaying...');

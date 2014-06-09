@@ -1,6 +1,10 @@
 /** @jsx React.DOM */
 (function() {
 
+  //  our top Nav bar options
+  //  'text' has the text to display
+  //  'action' is the callback on click
+  //  'isDisabled' boolean to enable/disable this option
   cabbie.nav = { 
     options: {
       code: {
@@ -27,12 +31,14 @@
     }
   };
 
+  //  enable/disable an option
   cabbie.nav.setOption = function(id, bool){
   
     cabbie.nav.options[id].isDisabled = bool;
     cabbie.renderAll();
   };
 
+  //  our main App top level component
   var App = React.createClass({
   getInitialState: function() {
     return {
@@ -46,7 +52,6 @@
     this.setState({
       loading: bool
     });
-
   },
   showSlider: function(bool){
   
@@ -61,10 +66,10 @@
     var Slider = cabbie.components.Slider;
     var JsonInput = cabbie.components.JsonInput;
 
-    console.log(this.state);
 
+    //  our basic HTML structure of the app
     return (
-      <div className="pure-g-r content id-layout">
+      <div className="pure-g-r">
         <Nav options={cabbie.nav.options} />
         <Map state={this.state.map} loading={this.state.loading} />
         <Slider state={this.state.isSliderOn} />
@@ -73,6 +78,7 @@
   }
 });
 
+//  force render on top level
 cabbie.renderAll = function(){
   cabbie.App = React.renderComponent(<App />, document.body);
 };

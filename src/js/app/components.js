@@ -3,8 +3,11 @@
 
 'use strict';
 
+//  register our React components
 cabbie.components = {};
 
+//  the top nav bar
+//  TODO : no coupling
 cabbie.components.Nav = React.createClass({
   getInitialState: function() {
     return {
@@ -18,10 +21,6 @@ cabbie.components.Nav = React.createClass({
     thisEle.setState({
       options: options
     });
-  },
-  setOption: function(id, bool){
-  
-    this.state.options[id].isDisabled = bool;
   },
   render: function(){
 
@@ -40,8 +39,6 @@ cabbie.components.Nav = React.createClass({
         </li>
       );
     });
-
-    console.log(options);
 
     return (
       <div className="home-menu pure-menu pure-menu-open pure-menu-horizontal pure-menu-fixed">
